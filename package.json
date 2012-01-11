@@ -1,7 +1,8 @@
 {
-    "name": "application-name"
+    "name": "MPJS"
   , "version": "0.0.1"
   , "private": true
+  , "author" : "Raul Rodrigo Segura <raurodse@gmail.com>"
   , "dependencies": {
       "express": "2.5.5"
     , "jade": ">= 0.0.1"
