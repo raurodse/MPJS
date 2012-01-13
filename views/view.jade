@@ -1,3 +1,9 @@
 h1 Estas en la pagina de ficheros
-each item in items
-    h3=item
+img(src='/images/folder.png')
+each item in directories
+    a(href="/view/" + rootpath + "/" + item) #{item}
+    br
+h1 Peliculas
+each item in files
+    a(href="/play/" + rootpath + "/" + item) #{item}
+    br
