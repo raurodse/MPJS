@@ -41,7 +41,19 @@ exports.notfound = function(req, res){
 exports.play = function(req,res)
 {
   var command = spawn('mplayer',[req.params[0]]);
-  command.on('exit',function(code){res.end("Finish");})
+  var command_output = new Array();
+  command.on('exit',function(code)
+             {
+              for(item in command_output)
+              {
+                res.write(command_output[item]);
+              }
+              res.end("Finish");
+              })
+  command.stdout.on('data',function(data)
+                    {
+                      command_output.push(data.toString('utf8'));
+                      });
   res.writeHead(200,{'Content-Type': 'text/plain'});
   res.write("Play " + req.params[0] + " ... ");
 }
