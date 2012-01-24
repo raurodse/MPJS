@@ -44,15 +44,23 @@ exports.play = function(req,res)
   var command_output = new Array();
   command.on('exit',function(code)
              {
-              for(item in command_output)
-              {
-                res.write(command_output[item]);
-              }
+              res.write(command_output[command_output.length - 1]);
               res.end("Finish");
               })
   command.stdout.on('data',function(data)
                     {
-                      command_output.push(data.toString('utf8'));
+                      var needle_start = / V: /;
+                      var needle_end = / A-V: /;
+                      var utf8_output = data.toString('utf8');
+                      var start_index = utf8_output.match(needle_start);
+                      if ( start_index != null)
+                      {
+                        var start_index = start_index['index'];
+                        var end_index = utf8_output.match(needle_end)['index'];
+                        start_index += 4;
+                        command_output.push(utf8_output.substr(start_index,end_index - start_index));
+                      }
+                      
                       });
   res.writeHead(200,{'Content-Type': 'text/plain'});
   res.write("Play " + req.params[0] + " ... ");
