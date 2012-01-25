@@ -4,6 +4,7 @@
  */
 var fs = require('fs');
 var spawn = require('child_process').spawn;
+var sqlite3 = require('sqlite3');
 exports.index = function(req, res){
   res.render('index', { title: 'MPJS' })
 };
@@ -40,17 +41,24 @@ exports.notfound = function(req, res){
 
 exports.play = function(req,res)
 {
-  var command = spawn('mplayer',[req.params[0]]);
+  var filepath = req.params[0];
+  var command = spawn('mplayer',[filepath]);
   var command_output = new Array();
+  var db = new sqlite3.Database("databases/core.db",function(code){
+        if(code != null){
+                //create database file and initialize database
+                console.log("Creating database");
+        }
+        });
   command.on('exit',function(code)
              {
-	      var lastsecond = command_output[command_output.length - 1];
-	      if (parseFloat(lastsecond) < 1)
-		res.write("\n");
-		res.write("Video acabado ");
-		lastsecond = command_output[command_output.length - 2];
+    	      var lastsecond = command_output[command_output.length - 1];
+    	      if (parseFloat(lastsecond) < 1)
+              {
+        	lastsecond = command_output[command_output.length - 2];
+              }
+              db.run("INSERT INTO list VALUES (?,?)",[filepath,lastsecond]);
               res.write(lastsecond);
-	      
               res.end("\nFinish");
               })
   command.stdout.on('data',function(data)
@@ -62,7 +70,7 @@ exports.play = function(req,res)
                       if ( start_index != null)
                       {
                         var start_index = start_index['index'];
-			var end_index = utf8_output.match(needle_end)['index'];
+            			var end_index = utf8_output.match(needle_end)['index'];
                         start_index += 4;
                         command_output.push(utf8_output.substr(start_index,end_index - start_index));
                       }
