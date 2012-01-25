@@ -44,19 +44,25 @@ exports.play = function(req,res)
   var command_output = new Array();
   command.on('exit',function(code)
              {
-              res.write(command_output[command_output.length - 1]);
-              res.end("Finish");
+	      var lastsecond = command_output[command_output.length - 1];
+	      if (parseFloat(lastsecond) < 1)
+		res.write("\n");
+		res.write("Video acabado ");
+		lastsecond = command_output[command_output.length - 2];
+              res.write(lastsecond);
+	      
+              res.end("\nFinish");
               })
   command.stdout.on('data',function(data)
                     {
                       var needle_start = / V: /;
-                      var needle_end = / A-V: /;
+                      var needle_end = / A-V:/;
                       var utf8_output = data.toString('utf8');
                       var start_index = utf8_output.match(needle_start);
                       if ( start_index != null)
                       {
                         var start_index = start_index['index'];
-                        var end_index = utf8_output.match(needle_end)['index'];
+			var end_index = utf8_output.match(needle_end)['index'];
                         start_index += 4;
                         command_output.push(utf8_output.substr(start_index,end_index - start_index));
                       }
